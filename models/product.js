@@ -9,6 +9,6 @@ const productSchema = new mongoose.Schema({
 });
 
 // create product collection based on productSchema
-const product = mongoose.model("Product", productSchema);
+const product = mongoose.model("product", productSchema);
 
 module.exports = { product };

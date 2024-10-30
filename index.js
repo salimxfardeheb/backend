@@ -1,27 +1,28 @@
-const express = require("express");
-const { getuser } = require("./db");
+  const express = require("express");
+  const { getuser, getProduct } = require("./db");
+  const {showdata} = require('./functions')
 
-const app = express();
-const port = 8000;
+  const app = express();
+  const port = 8000;
 
-app.get("/", (req, res) => {
-  res.send("hello this is home page");
-});
+  app.get("/", (req, res) => {
+    res.send("hello this is home page");
+  });
 
-const user_test = { username: "salim", password: "salim123" };
+  const user_test = { name: "salim", password: "salim123" };
 
-// authentification
-app.get("/get-user", async (req, res) => {
-  const user_result = await getuser(user_test.username, user_test.password);
-  if (user_result && user_result.length > 0) {
-    res.send(user_result);
-  } else if (user_result && user_result.length === 0) {
-    res.status(404).json({ message: "Aucun utilisateur trouvé." });
-  } else {
-    res.status(500).json({ error: "error geting users" });
-  }
-});
+  // authentification
+  app.get("/get-user", async (req, res) => {
+    const user_result = await getuser(user_test.username, user_test.password);
+    showdata(user_result, res)
+  });
 
-app.listen(port, () => {
-  console.log("server is running...");
-});
+  app.get("/get-products", async (req, res) => {
+    const product_result = await getProduct();
+    console.log(product_result)
+    showdata(product_result, res);
+  });
+
+  app.listen(port, () => {
+    console.log(`server is running on port ${port}...`);
+  });
