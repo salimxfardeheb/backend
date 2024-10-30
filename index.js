@@ -8,11 +8,11 @@ app.get("/", (req, res) => {
   res.send("hello this is home page");
 });
 
-const user = { username: "salim", password: "salim123" };
+const user_test = { username: "salim", password: "salim123" };
 
-// authentification 
+// authentification
 app.get("/get-user", async (req, res) => {
-  const user_result = await getuser(user.username, user.password);
+  const user_result = await getuser(user_test.username, user_test.password);
   if (user_result && user_result.length > 0) {
     res.send(user_result);
   } else if (user_result && user_result.length === 0) {
