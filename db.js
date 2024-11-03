@@ -41,4 +41,23 @@ async function getProduct() {
   }
 }
 
-module.exports = { getuser, getProduct };
+//post user
+async function adduser(namein,emailin,passwordin,typein,scorein) {
+  try {
+    await client.connect();
+    const dbb=client.db(store);
+    const coll=dbb.collection(users);
+    const insert=coll.insertOne({name:namein,email:emailin,password:passwordin,type:typein,scorein});
+    return "succes";
+
+  } catch (error) {
+    console.log(error);    
+  }
+  finally {
+    await client.close();
+  }
+  
+}
+
+
+module.exports = { getuser, getProduct,adduser};
