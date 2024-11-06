@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 
 // Connexion à MongoDB Atlas
 const uri =
-  "mongodb+srv://salim:salim123@store.y81bt.mongodb.net/store?retryWrites=true&w=majority&tls=true&tlsInsecure=true";
+  "mongodb+srv://stage:stage123@store.y81bt.mongodb.net/store?retryWrites=true&w=majority&tls=true&tlsInsecure=true";
 
 const client = new MongoClient(uri);
 const store = "store"; // database name
