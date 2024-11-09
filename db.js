@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-
+const user=require('./models/user');
 // Connexion à MongoDB Atlas
 const uri =
   "mongodb+srv://salim:salim123@store.y81bt.mongodb.net/store?retryWrites=true&w=majority&appName=store";
@@ -41,22 +41,25 @@ async function getProduct() {
   }
 }
 
-//post user
-async function adduser(namein,emailin,passwordin,typein,scorein) {
-  try {
-    await client.connect();
-    const dbb=client.db(store);
-    const coll=dbb.collection(users);
-    const insert=coll.insertOne({name:namein,email:emailin,password:passwordin,type:typein,scorein});
-    return "succes";
 
+
+//post user
+async function adduser(namein,emailin,passwordin) {
+  try {
+
+    const newUser = new user({
+      username: namein,
+      email: emailin,
+      password:passwordin
+    });
+    const result = await newUser.save();
+    return result;
   } catch (error) {
     console.log(error);    
   }
   finally {
     await client.close();
   }
-  
 }
 
 

@@ -24,8 +24,15 @@
   });
 
   app.post('/user',async(req,res)=>{
-    const result=await adduser("mohammed","mohammedderni@gmail.com","pass147258396","client",0);
-    console.log(result);
+    try
+    {
+      const result=await adduser(req.body.username,req.body.email,req.body.password);
+      res.status(201).json({ message: 'Utilisateur ajouté avec succès', user: result });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'utilisateur' });
+      }
+
 });
 
 
