@@ -13,7 +13,9 @@
 
   // authentification
   app.get("/get-user", async (req, res) => {
-    const user_result = await getuser(user_test.username, user_test.password);
+    const name = req.body.name;
+    const pwd = req.body.pwd;
+    const user_result = await getuser(name,pwd);
     showdata(user_result, res)
   });
 
