@@ -6,7 +6,7 @@ const Produit = require('./models/product');
 const app = express();
 const port = 3000;
 
-app.use(express.json);
+app.use(express.json());
 app.get("/", (req, res) => {
   res.send("hello this is home page");
 });
