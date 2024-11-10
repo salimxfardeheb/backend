@@ -10,11 +10,12 @@
   });
 
   const user_test = { name: "salim", password: "salim123" };
+  const user_add = {}
 
   // authentification
   app.get("/get-user", async (req, res) => {
-    const name = req.body.name;
-    const pwd = req.body.pwd;
+    const name = user_test.name;
+    const pwd = user_test.password;
     const user_result = await getuser(name,pwd);
     showdata(user_result, res)
   });
@@ -28,11 +29,11 @@
   app.post('/user',async(req,res)=>{
     try
     {
-      const result=await adduser(req.body.username,req.body.email,req.body.password);
-      res.status(201).json({ message: 'Utilisateur ajouté avec succès', user: result });
+      const result = await adduser("salim","salim@gmail.com","salim123");
+      res.status(201).send({ message: 'Utilisateur ajouté avec succès', user: result });
       } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'utilisateur' });
+        res.status(500).send({ message: 'Erreur lors de l\'ajout de l\'utilisateur' });
       }
 
 });

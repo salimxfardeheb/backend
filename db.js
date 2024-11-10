@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 const user=require('./models/user');
 // Connexion à MongoDB Atlas
 const uri =
-  "mongodb+srv://stage:stage123@store.y81bt.mongodb.net/store?retryWrites=true&w=majority&tls=true&tlsInsecure=true";
+  "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.3";
 
 const client = new MongoClient(uri);
 const store = "store"; // database name
@@ -16,8 +16,9 @@ async function getuser(username, password) {
     const dbb = client.db(store);
     const collection = dbb.collection(users);
     const fetch_users = await collection
-      .find({ name: username, password: password })
+      .find({ name: username, pasword: password })
       .toArray();
+      console.log(fetch_users)
     return fetch_users;
   } catch (error) {
     console.log("Erreur :", error);
@@ -40,7 +41,6 @@ async function getProduct() {
     await client.close();
   }
 }
-
 
 
 //post user
