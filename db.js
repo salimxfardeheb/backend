@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
-const user=require('./models/user');
-
+const user = require("./models/user");
+const { Cart } = require("./models/cart");
 
 // Connexion à MongoDB Atlas
 const uri =
@@ -20,7 +20,7 @@ async function getuser(username, password) {
     const fetch_users = await collection
       .find({ name: username, pasword: password })
       .toArray();
-      console.log(fetch_users)
+    console.log(fetch_users);
     return fetch_users;
   } catch (error) {
     console.log("Erreur :", error);
@@ -44,9 +44,27 @@ async function getProduct() {
   }
 }
 
+// create collection cart
+async function create_cart(id_client, products) {
+  try {
+    await client.connect();
+    const newCart = new Cart({
+      id_client: id_client,
+      products: products,
+    });
+    const cart = await newCart.save(); // Sauvegarde dans MongoDB
+    return cart;
+  } catch (error) {
+    console.log("Erreur :", error);
+    throw error; // Lève l'erreur pour qu'elle soit capturée dans la route
+  } finally {
+    await client.close();
+
+  }
+}
 
 //post user
-async function adduser(namein,emailin,passwordin) {
+async function adduser(namein, emailin, passwordin) {
   try {
     await client.connect();
     const dbb = client.db(store);
@@ -54,17 +72,15 @@ async function adduser(namein,emailin,passwordin) {
     const newUser = new User({
       username: namein,
       email: emailin,
-      password:passwordin
+      password: passwordin,
     });
     const add_users = await collection.insertOne(newUser);
     return add_users;
   } catch (error) {
-    console.log(error);    
-  }
-  finally {
+    console.log(error);
+  } finally {
     await client.close();
   }
 }
 
-
-module.exports = { getuser, getProduct,adduser,client};
+module.exports = { getuser, getProduct, adduser, create_cart, client };
