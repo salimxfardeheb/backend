@@ -1,3 +1,4 @@
+//functions.js
 function showdata (data, res) {
     if (data && data.length > 0) {
         res.send(data)
@@ -7,5 +8,8 @@ function showdata (data, res) {
         res.status(500).json({ error: "error geting users" });
       }
 }
+
+
+
 
 module.exports = {showdata}
