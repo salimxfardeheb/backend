@@ -1,8 +1,5 @@
 const { MongoClient } = require("mongodb");
-const user = require("./models/user");
-const { Cart } = require("./models/cart");
 
-// Connexion à MongoDB Atlas
 const uri =
   "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.3";
 
@@ -10,6 +7,7 @@ const client = new MongoClient(uri);
 const store = "store"; // database name
 const users = "users"; // users collection name
 const products = "products"; // products collection name
+const cart = "cart"
 
 //get user function
 async function getuser(username, password) {
@@ -48,20 +46,21 @@ async function getProduct() {
 async function create_cart(id_client, products) {
   try {
     await client.connect();
-    const newCart = new Cart({
-      id_client: id_client,
-      products: products,
-    });
-    const cart = await newCart.save(); // Sauvegarde dans MongoDB
-    return cart;
+    console.log("Données reçues pour le panier :", cart);
+    const dbb = client.db(store);
+    const collection = dbb.collection(cart);
+
+    const newCart = await collection.insertOne({id_client: id_client, products: products})
+    console.log("cart saved :", newCart);
+    return newCart;
   } catch (error) {
-    console.log("Erreur :", error);
-    throw error; // Lève l'erreur pour qu'elle soit capturée dans la route
+    console.error("Error creating collection cart :", error);
+    throw error;
   } finally {
     await client.close();
-
   }
 }
+
 
 //post user
 async function adduser(namein, emailin, passwordin) {
@@ -83,4 +82,9 @@ async function adduser(namein, emailin, passwordin) {
   }
 }
 
-module.exports = { getuser, getProduct, adduser, create_cart, client };
+module.exports = {
+  getuser,
+  getProduct,
+  adduser,
+  create_cart,
+};

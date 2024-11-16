@@ -11,8 +11,6 @@ app.get("/", (req, res) => {
   res.send("hello this is home page");
 });
 
-const user_test = { name: "salim", password: "salim123" };
-
 // authentification
 app.get("/get-user", async (req, res) => {
   const username = req.body.username;
@@ -29,17 +27,17 @@ app.get("/get-products", async (req, res) => {
 
 //panier
 app.post("/client-cart", async (req, res) => {
-  const id_client = req.body.id_client;
-  const products = req.body.products;
+  const { id_client, products } = req.body;
 
+  if (!id_client || !Array.isArray(products)) {
+    return res.status(400).send({ error: "Undifined data." });
+  }
   try {
-    // Appel de la fonction create_cart avec les paramètres dans le bon ordre
-    const createCart = await create_cart(id_client, products);
-    if (createCart) {
-      res.status(200).send({ message: "success", object: createCart });
-    }
+    const newCart = await create_cart(id_client, products);
+    res.status(200).send({ message: "success" });
   } catch (error) {
-    res.status(500).send({ error: "Erreur : " + error.message });
+    console.error("Error creating cart :", error);
+    res.status(500).send({ error: "Error creating cart." });
   }
 });
 
