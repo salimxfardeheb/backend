@@ -7,7 +7,7 @@ const client = new MongoClient(uri);
 const store = "store"; // database name
 const users = "users"; // users collection name
 const products = "products"; // products collection name
-const cart = "cart"
+const cart = "cart";
 
 //get user function
 async function getuser(username, password) {
@@ -50,9 +50,25 @@ async function create_cart(id_client, products) {
     const dbb = client.db(store);
     const collection = dbb.collection(cart);
 
-    const newCart = await collection.insertOne({id_client: id_client, products: products})
-    console.log("cart saved :", newCart);
-    return newCart;
+    // verification si le client a deja un panier :
+    const client_cart = await collection.findOne({ id_client: id_client });
+    if (client_cart) {
+      console.log("client has aleready a cart :", client_cart);
+      const update_cart = await collection.updateOne(
+        { id_client: id_client },
+        { $set: { products: products } }
+      );
+      console.log("successful update !", update_cart)
+      return update_cart;
+    } else {
+      console.log("client does not have a cart, creating cart...");
+      const newCart = await collection.insertOne({
+        id_client: id_client,
+        products: products,
+      });
+      console.log("cart saved :", newCart);
+      return newCart;
+    }
   } catch (error) {
     console.error("Error creating collection cart :", error);
     throw error;
@@ -60,7 +76,6 @@ async function create_cart(id_client, products) {
     await client.close();
   }
 }
-
 
 //post user
 async function adduser(namein, emailin, passwordin) {
