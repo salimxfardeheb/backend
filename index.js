@@ -1,7 +1,7 @@
 const express = require("express");
-const { getuser, getProduct, adduser,addproduct,addPanier,updatecommand} = require("./db");
-const { showdata } = require('./functions')
-const Produit = require('./models/product');
+const { getuser, getProduct, adduser, client, create_cart } = require("./db");
+const { showdata } = require("./functions");
+const Produit = require("./models/product");
 
 const app = express();
 const port = 3000;
@@ -11,117 +11,87 @@ app.get("/", (req, res) => {
   res.send("hello this is home page");
 });
 
-  const user_test = { name: "salim", password: "salim123" };
-  
-
-  // authentification
-  app.get("/get-user", async (req, res) => {
-    const name = user_test.name;
-    const pwd = user_test.password;
-    const user_result = await getuser(name,pwd);
-    showdata(user_result, res)
-  });
 // authentification
 app.get("/get-user", async (req, res) => {
-  const user_result = await getuser('mohammed',25);
-  showdata(user_result, res)
+  const username = req.body.username;
+  const password = req.body.password;
+  const user_result = await getuser(username, password);
+  showdata(user_result, res);
 });
 
+// recuperation des produits
 app.get("/get-products", async (req, res) => {
   const product_result = await getProduct();
-  console.log(product_result)
   showdata(product_result, res);
 });
 
+//panier
+app.post("/client-cart", async (req, res) => {
+  const { id_client, products } = req.body;
 
-app.post('/user',async(req,res)=>{
-    try
-    {
-      const result = await adduser(req.body.name,req.body.email,req.body.password);
-      res.status(201).send({ message: 'Utilisateur ajouté avec succès', user: result });
-      } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: 'Erreur lors de l\'ajout de l\'utilisateur' });
-      }
-    })
-
-    app.post('/produit', async (req, res) => {
-      try {
-        const result = await addproduct(req.body.name,req.body.category,req.body.img);
-        res.status(201).json({ message: 'produit ajouté avec succès', user: result });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erreur lors de l\'ajout du produit ' });
-      }
-      res.send('created')
-    })
-
-   app.post('/panier',async(req,res)=>{
-    try {
-      const  result =await addPanier(req.body.iduser,req.body.idproduit);
-      res.status(201).send({ message: 'produit ajouté au panier', user: result });
-    } catch (error) {
-      console.error(error);
-        res.status(500).send({ message: 'Erreur lors de l\'ajout du produit' });
-    }
-   })
- app.put('/command/:id',async(req,res)=>
- {
-  try {
-    const result=await updatecommand(req.params,req.body);
-
-    if(!result)
-    {
-      res.status(404).send({message:'command non trouve'});
-    }
-    else{
-      res.status(201).send({message:'command mise a jour'});
-    }    
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({message:'erreur lors de la mise a jour'})
+  if (!id_client || !Array.isArray(products)) {
+    return res.status(400).send({ error: "Undifined data." });
   }
- }
-  
-)    
-/*
-let db, clientsCollection;
+  try {
+    const newCart = await create_cart(id_client, products);
+    res.status(200).send({ message: "success" });
+  } catch (error) {
+    console.error("Error creating cart :", error);
+    res.status(500).send({ error: "Error creating cart." });
+  }
+});
 
-MongoClient.connect(uri, { useUnifiedTopology: true })
-  .then(client => {
-    console.log('Connexion à MongoDB réussie');
-    db = client.db('store'); // Remplacez par le nom de votre base de données
-    clientsCollection = db.collection('user');
-  })
-  .catch(error => console.error(error));
-
-
-*/
-app.post('/commande',async(req,res)=>{
+app.post("/commande", async (req, res) => {
   try {
     await client.connect();
-    
+  } catch (error) {}
+});
 
-
-  } catch (error) {
-    
-  }
-})
-
-
-/*app.post('/user', async (req, res) => {
+app.post("/produit", async (req, res) => {
   try {
-    console.log("wait1..");
-    const result = await adduser(req.body.username, req.body.email, req.body.password);
-    console.log("wait..");
-    res.status(201).json({ message: 'Utilisateur ajouté avec succès', user: result });
+    // Créer un nouvel utilisateur avec les données de la requête
+    await client.connect();
+    const newproduct = new Produit({
+      name: req.body.name,
+      price: req.body.price,
+      category: req.body.category,
+      quantity: req.body.category,
+    });
+    // Insérer l'utilisateur dans la collection MongoDB
+    const result = await newproduct.save();
+    res
+      .status(201)
+      .json({ message: "produit ajouté avec succès", user: result });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'utilisateur' });
+    res
+      .status(500)
+      .json({ message: "Erreur lors de l'ajout de l'utilisateur" });
   }
-  res.send('created')
+  res.send("created");
 });
-*/
-  app.listen(port, () => {
-    console.log(`server is running on port ${port}...`);
-  });
+
+app.post("/user", async (req, res) => {
+  try {
+    console.log("wait1..");
+    const result = await adduser(
+      req.body.username,
+      req.body.email,
+      req.body.password
+    );
+    console.log("wait..");
+    res
+      .status(201)
+      .json({ message: "Utilisateur ajouté avec succès", user: result });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de l'ajout de l'utilisateur" });
+  }
+  res.send("created");
+});
+
+app.listen(port, () => {
+  console.log(`server is running on port ${port}...`);
+});
