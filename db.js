@@ -1,14 +1,56 @@
-const { MongoClient,ObjectId } = require("mongodb");
-const user=require('./models/user');
+const { MongoClient } = require("mongodb");
+
 // Connexion à MongoDB Atlas
-const uri =
-  "mongodb://127.0.0.1:27017";
+const uri = "mongodb://127.0.0.1:27017";
 
 const client = new MongoClient(uri);
-const store = "store"; // database name
-const users = "users"; // users collection name
-const products = "products"; // products collection name
+
+// db collection names
+const store = "store";
+const users = "users";
+const products = "products";
 const cart = "cart";
+const command = "command";
+
+//add user to database (sign in)
+async function adduser(namein, emailin, passwordin) {
+  try {
+    await client.connect();
+    const dbb = client.db(store);
+    const collection = dbb.collection(users);
+    const newUser = {
+      username: namein,
+      email: emailin,
+      password: passwordin,
+    };
+    const add_users = await collection.insertOne(newUser);
+    return add_users;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    await client.close();
+  }
+}
+
+//add product to db
+async function addproduct(name, category, img) {
+  try {
+    await client.connect();
+    const dbb = client.db(store);
+    const collection = dbb.collection(products);
+    const newProduct = {
+      pname: name,
+      pcategory: category,
+      password: passwordin,
+    };
+    const add_users = await collection.insertOne(newUser);
+    return add_users;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    await client.close();
+  }
+}
 
 //get user function
 async function getuser(username, password) {
@@ -28,7 +70,7 @@ async function getuser(username, password) {
   }
 }
 
-// get products functions
+// get products function
 async function getProduct() {
   try {
     await client.connect();
@@ -59,7 +101,7 @@ async function create_cart(id_client, products) {
         { id_client: id_client },
         { $set: { products: products } }
       );
-      console.log("successful update !", update_cart)
+      console.log("successful update !", update_cart);
       return update_cart;
     } else {
       console.log("client does not have a cart, creating cart...");
@@ -78,41 +120,18 @@ async function create_cart(id_client, products) {
   }
 }
 
-//post user
-async function adduser(namein, emailin, passwordin) {
+// validate command by client
+async function updatecommand(id, status) {
   try {
     await client.connect();
     const dbb = client.db(store);
-    const collection = dbb.collection(users);
-    const newUser = {
-      username: namein,
-      email: emailin,
-      password:passwordin
-    };
-    const add_users = await collection.insertOne(newUser);
-    return add_users;
-  } catch (error) {
-    console.log(error);    
-  }
-  finally {
-    await client.close();
-  }   
-}
-
-//post product
-
-async function addproduct(name,category,img) { 
-  try {
-    await client.connect();
-    const dbb = client.db(store);
-    const collection = dbb.collection(products);
-    const newProduct = {
-      pname: name,
-      pcategory: category,
-      password:passwordin
-    };
-    const add_users = await collection.insertOne(newUser);
-    return add_users;
+    const collection = dbb.collection(panier);
+    const updatedPanier = await collection.findByIdAndUpdate(
+      id,
+      { $set: status },
+      { new: true }
+    );
+    return updatedPanier;
   } catch (error) {
     console.log(error);
   } finally {
@@ -126,4 +145,5 @@ module.exports = {
   adduser,
   create_cart,
   addproduct,
+  updatecommand,
 };
